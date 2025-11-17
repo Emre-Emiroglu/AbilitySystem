@@ -2,7 +2,7 @@
 using AbilitySystem.Runtime.Interfaces;
 using UnityEngine;
 
-namespace AbilitySystem.Runtime.Abstracts
+namespace AbilitySystem.Runtime.Abilities
 {
     public abstract class BaseAbility : IAbilityLogic
     {
