@@ -1,7 +1,7 @@
 {
   "name": "com.emreemiroglu.abilitysystem",
   "version": "1.0.0",
-  "displayName": "Ability System",
+  "displayName": "AbilitySystem",
   "description": "Ability System is a fully modular, data-driven, editor-assisted ability framework for Unity.",
   "author": {
     "name": "Emre Emiroglu",
