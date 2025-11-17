@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace AbilitySystem.Editor
+namespace AbilitySystem.Editor.Windows
 {
     public sealed class AbilityCreator : EditorWindow
     {
@@ -12,8 +12,8 @@ namespace AbilitySystem.Editor
             AbilityCreator window = GetWindow<AbilityCreator>();
             
             window.titleContent = new GUIContent("Ability Creator");
-            window.minSize = new Vector2(480, 270);
-            window.maxSize = new Vector2(960, 540);
+            window.minSize = new Vector2(240, 135);
+            window.maxSize = new Vector2(480, 270);
             
             window.Show();
         }
