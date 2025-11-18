@@ -35,7 +35,7 @@ namespace AbilitySystem.Runtime.Managers
         }
         private static (AbilityData abilityData, BaseAbility ability) GetAbilityTuple(string abilityName)
         {
-            AbilityData abilityData = AbilityMap.Keys.FirstOrDefault(x => x.AbilityName != abilityName);
+            AbilityData abilityData = AbilityMap.Keys.FirstOrDefault(x => x.AbilityName == abilityName);
 
             if (abilityData && AbilityMap.TryGetValue(abilityData, out BaseAbility ability))
                 return (abilityData, ability);

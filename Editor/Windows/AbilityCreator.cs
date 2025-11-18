@@ -14,7 +14,34 @@ namespace AbilitySystem.Editor.Windows
         
         #region Core
         [MenuItem("Tools/Ability Creator")]
-        private static void ShowWindow()
+        private static void ShowWindow() => DrawEditor();
+        private void OnGUI()
+        {
+            DrawAbilityNameField();
+
+            if (DrawCreateButton())
+                return;
+            
+            if (CheckAbilityNameIsEmpty())
+                return;
+
+            string sanitizedAbilityName = GetSanitizedAbilityName();
+
+            if (!AbilityTypeGenerator.AddAbilityType(sanitizedAbilityName))
+                return;
+            
+            if (!AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName))
+                return;
+            
+            if (!AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName))
+                return;
+
+            Debug.Log($"{sanitizedAbilityName} Ability created successfully!");
+        }
+        #endregion
+
+        #region Executes
+        private static void DrawEditor()
         {
             AbilityCreator window = GetWindow<AbilityCreator>();
             
@@ -25,48 +52,24 @@ namespace AbilitySystem.Editor.Windows
             
             window.Show();
         }
-        private void OnGUI()
+        private void DrawAbilityNameField()
         {
             GUILayout.Label("Create New Ability", EditorStyles.boldLabel);
 
             _abilityName = EditorGUILayout.TextField("Ability Name", _abilityName);
-
-            if (!GUILayout.Button("Create Ability"))
-                return;
-            
-            if (string.IsNullOrWhiteSpace(_abilityName))
-            {
-                Debug.LogError("Ability name cannot be empty!");
-                    
-                return;
-            }
-
-            string cleanName = _abilityName.Replace(" ", "");
-            
-            AbilityTypeGenerator.AddAbilityType(cleanName);
-            AbilityClassGenerator.CreateAbilityClass(cleanName);
-                
-            AbilityData data = CreateAbilityData(cleanName);
-            
-            Debug.Log($"{cleanName} Ability created successfully!");
         }
-        #endregion
-
-        #region Executes
-        private static AbilityData CreateAbilityData(string abilityName)
+        private static bool DrawCreateButton() => !GUILayout.Button("Create Ability");
+        private bool CheckAbilityNameIsEmpty()
         {
-            AbilityData data = CreateInstance<AbilityData>();
+            if (!string.IsNullOrWhiteSpace(_abilityName))
+                return false;
             
-            data.AbilityName = abilityName;
+            Debug.LogError("Ability name cannot be empty!");
 
-            string path = $"Assets/AbilitySystem/ScriptableObjects/{abilityName}Data.asset";
-            
-            AssetDatabase.CreateAsset(data, path);
-            
-            AssetDatabase.SaveAssets();
+            return true;
 
-            return data;
         }
+        private string GetSanitizedAbilityName() => _abilityName.Trim().Replace(" ", string.Empty);
         #endregion
     }
 }

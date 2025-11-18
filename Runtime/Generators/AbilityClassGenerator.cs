@@ -7,67 +7,63 @@ namespace AbilitySystem.Runtime.Generators
     public static class AbilityClassGenerator
     {
         #region Constants
-        private const string AbilityFolder = "Assets/AbilitySystem/Scripts/Runtime/Abilities";
+        private const string AbilityClassFolder = "Assets/AbilitySystem/Scripts/Runtime/Abilities";
+        private const string Indent = "    "; 
         #endregion
 
         #region Executes
-        public static void CreateAbilityClass(string abilityName)
+        public static bool CreateAbilityClass(string abilityName)
         {
-            if (!Directory.Exists(AbilityFolder))
-                Directory.CreateDirectory(AbilityFolder);
+            if (!Directory.Exists(AbilityClassFolder))
+                Directory.CreateDirectory(AbilityClassFolder);
 
             string className = $"{abilityName}Ability";
-            string filePath = $"{AbilityFolder}/{className}.cs";
+            string filePath = $"{AbilityClassFolder}/{className}.cs";
 
             if (File.Exists(filePath))
             {
                 Debug.LogWarning($"{className}.cs already exists!");
                 
-                return;
+                return false;
             }
 
-            string content = GetContent(className);
-
-            File.WriteAllText(filePath, content);
-            
-            AssetDatabase.Refresh();
-        }
-        private static string GetContent(string className)
-        {
             string content =
 $@"using AbilitySystem.Runtime.Abilities;
 using AbilitySystem.Runtime.Data;
 
 namespace AbilitySystem.Scripts.Runtime.Abilities
 {{
-    public sealed class {className} : BaseAbility
-    {{
-        public override void Initialize(AbilityData abilityData)
-        {{
-            base.Initialize(abilityData);
+{Indent}public sealed class {className} : BaseAbility
+{Indent}{{
+{Indent}{Indent}public override void Initialize(AbilityData abilityData)
+{Indent}{Indent}{{
+{Indent}{Indent}{Indent}base.Initialize(abilityData);
 
-            // TODO: {className} initialize logic here
-        }}
+{Indent}{Indent}{Indent}// TODO: {className} initialize logic here
+{Indent}{Indent}}}
 
-        public override void Execute()
-        {{
-            base.Execute();
+{Indent}{Indent}public override void Execute()
+{Indent}{Indent}{{
+{Indent}{Indent}{Indent}base.Execute();
 
-            // TODO: {className} execute logic here
-        }}
+{Indent}{Indent}{Indent}// TODO: {className} execute logic here
+{Indent}{Indent}}}
 
-        public override void Cancel()
-        {{
-            base.Cancel();
+{Indent}{Indent}public override void Cancel()
+{Indent}{Indent}{{
+{Indent}{Indent}{Indent}base.Cancel();
 
-            // TODO: {className} cancel logic here
-        }}
-    }}
+{Indent}{Indent}{Indent}// TODO: {className} cancel logic here
+{Indent}{Indent}}}
+{Indent}}}
 }}";
+
+            File.WriteAllText(filePath, content);
             
-            return content;
+            AssetDatabase.Refresh();
+
+            return true;
         }
         #endregion
-        
     }
 }

@@ -8,45 +8,41 @@ namespace AbilitySystem.Runtime.Generators
     public static class AbilityTypeGenerator
     {
         #region Constants
-        private const string EnumFolder = "Assets/AbilitySystem/Scripts/Runtime/Enums";
-        private const string EnumFilePath = "Assets/AbilitySystem/Scripts/Runtime/Enums/AbilityType.cs";
+        private const string AbilityTypeFolder = "Assets/AbilitySystem/Scripts/Runtime/Enums";
+        private const string AbilityTypeFilePath = "Assets/AbilitySystem/Scripts/Runtime/Enums/AbilityType.cs";
         private const string Indent = "    "; 
         #endregion
 
         #region Executes
-        public static void AddAbilityType(string abilityName)
+        public static bool AddAbilityType(string abilityName)
         {
-            if (string.IsNullOrWhiteSpace(abilityName))
+            if (!Directory.Exists(AbilityTypeFolder))
+                Directory.CreateDirectory(AbilityTypeFolder);
+            
+            if (!File.Exists(AbilityTypeFilePath))
             {
-                Debug.LogError("Ability name cannot be empty!");
+                Debug.LogWarning($"AbilityType.cs file not found at: {AbilityTypeFilePath}. Creating a new one.");
                 
-                return;
-            }
-            
-            string sanitizedAbilityName = abilityName.Trim().Replace(" ", string.Empty);
-            
-            if (!Directory.Exists(EnumFolder))
-                Directory.CreateDirectory(EnumFolder);
-            
-            if (!File.Exists(EnumFilePath))
-            {
-                Debug.LogWarning($"AbilityType.cs file not found at: {EnumFilePath}. Creating a new one.");
+                string content =
+$@"namespace AbilitySystem.Scripts.Runtime.Enums
+{{
+{Indent}public enum AbilityType
+{Indent}{{
+{Indent}}}
+}}";
                 
-                string content = GetContent();
-                
-                File.WriteAllText(EnumFilePath, content);
+                File.WriteAllText(AbilityTypeFilePath, content);
                 
                 AssetDatabase.Refresh();
             }
 
-            string readContent = File.ReadAllText(EnumFilePath);
+            string readContent = File.ReadAllText(AbilityTypeFilePath);
 
-            if (readContent.IndexOf(sanitizedAbilityName + ",", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (readContent.IndexOf(abilityName + ",", StringComparison.OrdinalIgnoreCase) >= 0)
             {
-                Debug.LogWarning(
-                    $"Element '{sanitizedAbilityName}' already exists in AbilityType enum. No changes were made.");
+                Debug.LogWarning($"Element '{abilityName}' already exists in AbilityType enum. No changes were made.");
                 
-                return;
+                return false;
             }
 
             string searchPattern = $"{Indent}}}"; 
@@ -54,34 +50,24 @@ namespace AbilitySystem.Runtime.Generators
             int enumClosingIndex = readContent.LastIndexOf(searchPattern, StringComparison.Ordinal);
 
             if (enumClosingIndex == -1)
-                return;
+                return false;
             
             string contentUntilEnumEnd = readContent[..enumClosingIndex];
 
-            string newEnumEntry = $"{Indent}{Indent}{sanitizedAbilityName},{Environment.NewLine}";
+            string newEnumEntry = $"{Indent}{Indent}{abilityName},{Environment.NewLine}";
 
             string newContent = contentUntilEnumEnd +
                                 newEnumEntry +
                                 searchPattern +
                                 readContent[(enumClosingIndex + searchPattern.Length)..];
 
-            File.WriteAllText(EnumFilePath, newContent);
+            File.WriteAllText(AbilityTypeFilePath, newContent);
                 
             AssetDatabase.Refresh();
                 
-            Debug.Log($"'{sanitizedAbilityName}' successfully added to the AbilityType enum.");
-        }
-        private static string GetContent()
-        {
-            string content =
-$@"namespace AbilitySystem.Scripts.Runtime.Enums
-{{
-{Indent}public enum AbilityType
-{Indent}{{
-{Indent}}}
-}}";
-
-            return content;
+            Debug.Log($"'{abilityName}' successfully added to the AbilityType enum.");
+            
+            return true;
         }
         #endregion
     }
