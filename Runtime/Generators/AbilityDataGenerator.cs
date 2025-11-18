@@ -8,7 +8,7 @@ namespace AbilitySystem.Runtime.Generators
     public static class AbilityDataGenerator
     {
         #region Constants
-        private const string AbilityDataFolder = "Assets/AbilitySystem/ScriptableObjects";
+        private const string AbilityDataFolder = "Assets/Resources/AbilitySystem/ScriptableObjects";
         #endregion
 
         #region Executes
