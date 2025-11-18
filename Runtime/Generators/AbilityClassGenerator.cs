@@ -35,35 +35,35 @@ namespace AbilitySystem.Runtime.Generators
         private static string GetContent(string className)
         {
             string content =
-                $@"using AbilitySystem.Runtime.Abilities;
-                using AbilitySystem.Runtime.Data;
+$@"using AbilitySystem.Runtime.Abilities;
+using AbilitySystem.Runtime.Data;
 
-                namespace AbilitySystem.Scripts.Runtime.Abilities
-                {{
-                    public sealed class {className} : BaseAbility
-                    {{
-                        public override void Initialize(AbilityData abilityData)
-                        {{
-                            base.Initialize(abilityData);
+namespace AbilitySystem.Scripts.Runtime.Abilities
+{{
+    public sealed class {className} : BaseAbility
+    {{
+        public override void Initialize(AbilityData abilityData)
+        {{
+            base.Initialize(abilityData);
 
-                            // TODO: {className} initialize logic here
-                        }}
+            // TODO: {className} initialize logic here
+        }}
 
-                        public override void Execute()
-                        {{
-                            base.Execute();
+        public override void Execute()
+        {{
+            base.Execute();
 
-                            // TODO: {className} execute logic here
-                        }}
+            // TODO: {className} execute logic here
+        }}
 
-                        public override void Cancel()
-                        {{
-                            base.Cancel();
+        public override void Cancel()
+        {{
+            base.Cancel();
 
-                            // TODO: {className} cancel logic here
-                        }}
-                    }}
-                }}";
+            // TODO: {className} cancel logic here
+        }}
+    }}
+}}";
             
             return content;
         }
