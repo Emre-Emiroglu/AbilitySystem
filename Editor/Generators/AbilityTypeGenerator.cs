@@ -1,15 +1,14 @@
 ﻿using System;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 
-namespace AbilitySystem.Runtime.Generators
+namespace AbilitySystem.Editor.Generators
 {
     public static class AbilityTypeGenerator
     {
         #region Constants
-        private const string AbilityTypeFolder = "Assets/AbilitySystem2/Scripts/Runtime/Enums";
-        private const string AbilityTypeFilePath = "Assets/AbilitySystem2/Scripts/Runtime/Enums/AbilityType.cs";
+        private const string AbilityTypeFolder = "Assets/AbilitySystem/Scripts/Runtime/Enums";
+        private const string AbilityTypeFilePath = "Assets/AbilitySystem/Scripts/Runtime/Enums/AbilityType.cs";
         private const string Indent = "    "; 
         #endregion
 
@@ -21,10 +20,8 @@ namespace AbilitySystem.Runtime.Generators
             
             if (!File.Exists(AbilityTypeFilePath))
             {
-                Debug.Log($"AbilityType.cs file not found at: {AbilityTypeFilePath}. Creating a new one.");
-                
                 string content =
-$@"namespace AbilitySystem2.Scripts.Runtime.Enums
+$@"namespace AbilitySystem.Scripts.Runtime.Enums
 {{
 {Indent}public enum AbilityType
 {Indent}{{
@@ -39,11 +36,7 @@ $@"namespace AbilitySystem2.Scripts.Runtime.Enums
             string readContent = File.ReadAllText(AbilityTypeFilePath);
 
             if (readContent.IndexOf(abilityName + ",", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                Debug.Log($"Element '{abilityName}' already exists in AbilityType enum. No changes were made.");
-                
                 return false;
-            }
 
             string searchPattern = $"{Indent}}}"; 
             
@@ -65,8 +58,6 @@ $@"namespace AbilitySystem2.Scripts.Runtime.Enums
                 
             AssetDatabase.Refresh();
                 
-            Debug.Log($"'{abilityName}' successfully added to the AbilityType enum.");
-            
             return true;
         }
         #endregion

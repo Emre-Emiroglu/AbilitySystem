@@ -1,13 +1,12 @@
 ﻿using System.IO;
 using UnityEditor;
-using UnityEngine;
 
-namespace AbilitySystem.Runtime.Generators
+namespace AbilitySystem.Editor.Generators
 {
     public static class AbilityClassGenerator
     {
         #region Constants
-        private const string AbilityClassFolder = "Assets/AbilitySystem2/Scripts/Runtime/Abilities";
+        private const string AbilityClassFolder = "Assets/AbilitySystem/Scripts/Runtime/Abilities";
         private const string Indent = "    "; 
         #endregion
 
@@ -21,17 +20,13 @@ namespace AbilitySystem.Runtime.Generators
             string filePath = $"{AbilityClassFolder}/{className}.cs";
 
             if (File.Exists(filePath))
-            {
-                Debug.LogWarning($"{className}.cs already exists!");
-                
                 return false;
-            }
 
             string content =
 $@"using AbilitySystem.Runtime.Abilities;
 using AbilitySystem.Runtime.Data;
 
-namespace AbilitySystem2.Scripts.Runtime.Abilities
+namespace AbilitySystem.Scripts.Runtime.Abilities
 {{
 {Indent}public sealed class {className} : BaseAbility
 {Indent}{{

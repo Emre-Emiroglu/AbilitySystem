@@ -1,4 +1,4 @@
-﻿using AbilitySystem.Runtime.Generators;
+﻿using AbilitySystem.Editor.Generators;
 using UnityEditor;
 using UnityEngine;
 
@@ -65,7 +65,6 @@ namespace AbilitySystem.Editor.Windows
             Debug.LogError("Ability name cannot be empty!");
 
             return true;
-
         }
         private string GetSanitizedAbilityName() => _abilityName.Trim().Replace(" ", string.Empty);
         #endregion
