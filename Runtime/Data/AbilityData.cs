@@ -2,7 +2,7 @@
 
 namespace AbilitySystem.Runtime.Data
 {
-    public class AbilityData : ScriptableObject
+    public abstract class AbilityData : ScriptableObject
     {
         #region Fields
         [Header("Ability Fields")]

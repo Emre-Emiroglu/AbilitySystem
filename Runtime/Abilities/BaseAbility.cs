@@ -9,6 +9,10 @@ namespace AbilitySystem.Runtime.Abilities
         #region Fields
         private AbilityData _abilityData;
         #endregion
+
+        #region Getters
+        public AbilityData AbilityData => _abilityData;
+        #endregion
         
         #region Core
         public virtual void Initialize(AbilityData abilityData)

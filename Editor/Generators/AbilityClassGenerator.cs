@@ -7,7 +7,7 @@ namespace AbilitySystem.Runtime.Generators
     public static class AbilityClassGenerator
     {
         #region Constants
-        private const string AbilityClassFolder = "Assets/AbilitySystem/Scripts/Runtime/Abilities";
+        private const string AbilityClassFolder = "Assets/AbilitySystem2/Scripts/Runtime/Abilities";
         private const string Indent = "    "; 
         #endregion
 
@@ -31,7 +31,7 @@ namespace AbilitySystem.Runtime.Generators
 $@"using AbilitySystem.Runtime.Abilities;
 using AbilitySystem.Runtime.Data;
 
-namespace AbilitySystem.Scripts.Runtime.Abilities
+namespace AbilitySystem2.Scripts.Runtime.Abilities
 {{
 {Indent}public sealed class {className} : BaseAbility
 {Indent}{{

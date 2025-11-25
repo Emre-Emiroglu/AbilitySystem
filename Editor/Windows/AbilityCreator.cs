@@ -1,6 +1,4 @@
-﻿using AbilitySystem.Runtime.Data;
-using AbilitySystem.Runtime.Generators;
-using AbilitySystem.Runtime.Managers;
+﻿using AbilitySystem.Runtime.Generators;
 using UnityEditor;
 using UnityEngine;
 
