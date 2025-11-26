@@ -11,7 +11,7 @@ namespace AbilitySystem.Runtime.Managers
     public static class AbilityManager
     {
         #region Constants
-        private const string AbilityDataPath = "AbilitySystem/ScriptableObjects";
+        private const string ResourcesAbilityDataFolder = "AbilitySystem/ScriptableObjects";
         #endregion
         
         #region StaticReadonlyFields
@@ -32,13 +32,17 @@ namespace AbilitySystem.Runtime.Managers
         }
         private static void LoadAllAbilityData()
         {
-            AbilityData[] allData = Resources.LoadAll<AbilityData>(AbilityDataPath);
+            DataMap.Clear();
+            
+            AbilityData[] allData = Resources.LoadAll<AbilityData>(ResourcesAbilityDataFolder);
 
             foreach (AbilityData data in allData)
                 DataMap.TryAdd(data.AbilityName, data);
         }
         private static void CreateAbilityInstances()
         {
+            AbilityInstanceMap.Clear();
+            
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             List<Type> abilityTypes = assemblies.SelectMany(a =>

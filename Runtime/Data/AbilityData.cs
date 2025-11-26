@@ -9,12 +9,8 @@ namespace AbilitySystem.Runtime.Data
         [SerializeField] private string abilityName;
         #endregion
 
-        #region Properities
-        public string AbilityName
-        {
-            get => abilityName;
-            set => abilityName = value;
-        }
+        #region Getters
+        public string AbilityName => abilityName;
         #endregion
     }
 }
