@@ -2,9 +2,9 @@
 
 namespace AbilitySystem.Runtime.Interfaces
 {
-    public interface IAbilityLogic
+    public interface IAbilityLogic<in TAbilityData> where TAbilityData : AbilityData
     {
-        public void Initialize(AbilityData abilityData);
+        public void Initialize(TAbilityData abilityData);
         public void Execute();
         public void Cancel();
     }

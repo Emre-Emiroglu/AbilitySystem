@@ -4,25 +4,21 @@ using UnityEngine;
 
 namespace AbilitySystem.Runtime.Abilities
 {
-    public abstract class BaseAbility : IAbilityLogic
+    public abstract class BaseAbility<TAbilityData> : IAbilityLogic<TAbilityData> where TAbilityData : AbilityData
     {
         #region Fields
-        private AbilityData _abilityData;
+        protected TAbilityData AbilityData;
         #endregion
 
-        #region Getters
-        public AbilityData AbilityData => _abilityData;
-        #endregion
-        
         #region Core
-        public virtual void Initialize(AbilityData abilityData)
+        public virtual void Initialize(TAbilityData abilityData)
         {
-            _abilityData = abilityData;
+            AbilityData = abilityData;
             
-            LogMessage($"Ability: {_abilityData.AbilityName} Initialized");
+            LogMessage($"Ability: {AbilityData.AbilityName} Initialized");
         }
-        public virtual void Execute() => LogMessage($"Ability: {_abilityData.AbilityName} Executed");
-        public virtual void Cancel() => LogMessage($"Ability: {_abilityData.AbilityName} Canceled");
+        public virtual void Execute() => LogMessage($"Ability: {AbilityData.AbilityName} Executed");
+        public virtual void Cancel() => LogMessage($"Ability: {AbilityData.AbilityName} Canceled");
         #endregion
 
         #region Executes

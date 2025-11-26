@@ -25,13 +25,10 @@ namespace AbilitySystem.Editor.Windows
 
             string sanitizedAbilityName = GetSanitizedAbilityName();
 
-            if (!AbilityTypeGenerator.AddAbilityType(sanitizedAbilityName))
+            if (!AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName))
                 return;
             
             if (!AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName))
-                return;
-            
-            if (!AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName))
                 return;
 
             Debug.Log($"{sanitizedAbilityName} Ability created successfully!");

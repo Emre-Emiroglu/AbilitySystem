@@ -8,8 +8,6 @@ namespace AbilitySystem.Editor.Generators
         #region Constants
         private const string AbilityDataFolder = "Assets/Resources/AbilitySystem/ScriptableObjects";
         private const string AbilityDataClassFolder = "Assets/AbilitySystem/Scripts/Runtime/Data";
-        private const string AbilityDataName = "Data";
-        private const string AbilityDataNamespace = "AbilitySystem.Scripts.Runtime.Data";
         private const string Indent = "    ";
         #endregion
 
@@ -22,7 +20,7 @@ namespace AbilitySystem.Editor.Generators
             if (!Directory.Exists(AbilityDataClassFolder))
                 Directory.CreateDirectory(AbilityDataClassFolder);
 
-            string className = $"{abilityName}{AbilityDataName}";
+            string className = $"{abilityName}Data";
             string classFilePath = $"{AbilityDataClassFolder}/{className}.cs";
             string assetPath = $"{AbilityDataFolder}/{className}.asset";
 
@@ -31,8 +29,9 @@ namespace AbilitySystem.Editor.Generators
 
             string content =
 $@"using AbilitySystem.Runtime.Data;
+using UnityEngine;
 
-namespace {AbilityDataNamespace}
+namespace AbilitySystem.Scripts.Runtime.Data
 {{
 {Indent}[CreateAssetMenu(fileName = ""{className}"", menuName = ""AbilitySystem/AbilityData/{className}"")]
 {Indent}public sealed class {className} : AbilityData

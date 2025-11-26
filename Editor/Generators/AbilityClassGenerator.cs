@@ -18,19 +18,20 @@ namespace AbilitySystem.Editor.Generators
 
             string className = $"{abilityName}Ability";
             string filePath = $"{AbilityClassFolder}/{className}.cs";
+            string dataName = $"{abilityName}Data";
 
             if (File.Exists(filePath))
                 return false;
 
             string content =
 $@"using AbilitySystem.Runtime.Abilities;
-using AbilitySystem.Runtime.Data;
+using AbilitySystem.Scripts.Runtime.Data;
 
 namespace AbilitySystem.Scripts.Runtime.Abilities
 {{
-{Indent}public sealed class {className} : BaseAbility
+{Indent}public sealed class {className} : BaseAbility<{dataName}>
 {Indent}{{
-{Indent}{Indent}public override void Initialize(AbilityData abilityData)
+{Indent}{Indent}public override void Initialize({dataName} abilityData)
 {Indent}{Indent}{{
 {Indent}{Indent}{Indent}base.Initialize(abilityData);
 
