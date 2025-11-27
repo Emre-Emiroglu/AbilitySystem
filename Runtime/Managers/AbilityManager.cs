@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using AbilitySystem.Runtime.Abilities;
 using AbilitySystem.Runtime.Data;
 using UnityEngine;
 
@@ -14,177 +13,150 @@ namespace AbilitySystem.Runtime.Managers
         private const string ResourcesAbilityDataFolder = "AbilitySystem";
         #endregion
         
-        #region StaticReadonlyFields
+        #region Data Maps
         private static readonly Dictionary<string, AbilityData> DataMap = new();
-        private static readonly Dictionary<string, object> AbilityInstanceMap = new();
+        private static readonly Dictionary<string, Stack<object>> DeActiveAbilityInstanceMap = new();
+        private static readonly Dictionary<string, HashSet<object>> ActiveAbilityInstanceMap = new();
         #endregion
-
-        #region Executes
+        
+        #region Initialization
         public static void InitializeManager()
         {
             Debug.Log("<color=yellow>[AbilityManager] Initializing...</color>");
 
-            LoadAllAbilityData();  
+            LoadAllAbilityData();
             
-            CreateAbilityInstances();
+            PrepareDictionaries();
 
-            Debug.Log(
-                $"<color=green>[AbilityManager] Initialization complete. Total abilities: {AbilityInstanceMap.Count}</color>");
+            Debug.Log("<color=green>[AbilityManager] Ready.</color>");
         }
         private static void LoadAllAbilityData()
         {
-            Debug.Log("[AbilityManager] Loading AbilityData from Resources...");
-
             DataMap.Clear();
 
             AbilityData[] allData = Resources.LoadAll<AbilityData>(ResourcesAbilityDataFolder);
 
-            Debug.Log($"[AbilityManager] Found {allData.Length} AbilityData assets.");
+            foreach (var data in allData)
+                if (!string.IsNullOrWhiteSpace(data.AbilityName))
+                    DataMap[data.AbilityName] = data;
 
-            foreach (AbilityData data in allData)
+            Debug.Log($"[AbilityManager] Loaded {DataMap.Count} AbilityData assets.");
+        }
+        private static void PrepareDictionaries()
+        {
+            DeActiveAbilityInstanceMap.Clear();
+            
+            ActiveAbilityInstanceMap.Clear();
+
+            foreach (string ability in DataMap.Keys)
             {
-                if (string.IsNullOrWhiteSpace(data.AbilityName))
-                {
-                    Debug.LogWarning($"[AbilityManager] AbilityData missing AbilityName → {data.name}");
-                    
-                    continue;
-                }
-
-                if (!DataMap.TryAdd(data.AbilityName, data))
-                {
-                    Debug.LogWarning($"[AbilityManager] Duplicate AbilityData name detected: {data.AbilityName}");
-                    
-                    continue;
-                }
-
-                Debug.Log($"[AbilityManager] Registered AbilityData → {data.AbilityName}");
+                DeActiveAbilityInstanceMap[ability] = new Stack<object>(8);
+                
+                ActiveAbilityInstanceMap[ability] = new HashSet<object>();
             }
         }
-        private static void CreateAbilityInstances()
+        #endregion
+
+        #region Executes
+        public static object Spawn(string abilityName)
         {
-            Debug.Log("[AbilityManager] Searching for all BaseAbility<> implementations...");
-
-            AbilityInstanceMap.Clear();
-
-            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-            List<Type> abilityTypes = assemblies
-                .SelectMany(a =>
-                {
-                    try
-                    {
-                        return a.GetTypes();
-                    }
-                    catch
-                    {
-                        return Array.Empty<Type>();
-                    }
-                }).Where(t =>
-                    t.IsClass &&
-                    !t.IsAbstract &&
-                    t.BaseType is { IsGenericType: true } &&
-                    t.BaseType.GetGenericTypeDefinition() == typeof(BaseAbility<>)).ToList();
-
-            Debug.Log($"[AbilityManager] Found {abilityTypes.Count} ability classes.");
-
-            foreach (Type type in abilityTypes)
+            if (!DataMap.TryGetValue(abilityName, out AbilityData data))
             {
-                string abilityName = type.Name.Replace("Ability", "");
+                Debug.LogError($"[AbilityManager] No AbilityData found for {abilityName}");
+                
+                return null;
+            }
 
-                Debug.Log($"[AbilityManager] Processing ability class → {type.Name}");
+            object instance;
 
-                if (!DataMap.TryGetValue(abilityName, out AbilityData abilityData))
+            if (DeActiveAbilityInstanceMap[abilityName].Count > 0)
+                instance = DeActiveAbilityInstanceMap[abilityName].Pop();
+            else
+            {
+                Type type = FindAbilityType(abilityName);
+                
+                if (type == null)
                 {
-                    Debug.LogWarning(
-                        $"[AbilityManager] No AbilityData found for ability '{abilityName}'. Skipping instance creation.");
+                    Debug.LogError($"[AbilityManager] No Ability class found for {abilityName}");
                     
-                    continue;
+                    return null;
                 }
 
+                instance = Activator.CreateInstance(type);
+            }
+
+            MethodInfo initialize = instance.GetType().GetMethod("Initialize");
+            
+            initialize?.Invoke(instance, new object[] { data });
+
+            ActiveAbilityInstanceMap[abilityName].Add(instance);
+
+            return instance;
+        }
+        public static void Release(object instance)
+        {
+            if (instance == null)
+                return;
+
+            string abilityName = ExtractAbilityName(instance.GetType().Name);
+
+            if (!ActiveAbilityInstanceMap.ContainsKey(abilityName))
+            {
+                Debug.LogWarning($"[AbilityManager] Tried to release unknown ability → {abilityName}");
+                
+                return;
+            }
+
+            MethodInfo cancel = instance.GetType().GetMethod("Cancel");
+            
+            cancel?.Invoke(instance, null);
+
+            ActiveAbilityInstanceMap[abilityName].Remove(instance);
+            
+            DeActiveAbilityInstanceMap[abilityName].Push(instance);
+        }
+        public static void CancelAll(string abilityName)
+        {
+            if (!ActiveAbilityInstanceMap.TryGetValue(abilityName, out HashSet<object> activeAbilityInstances))
+                return;
+
+            foreach (object instance in activeAbilityInstances)
+                Release(instance);
+        }
+        public static void Execute(object instance)
+        {
+            if (instance == null)
+                return;
+
+            MethodInfo execute = instance.GetType().GetMethod("Execute");
+            
+            execute?.Invoke(instance, null);
+        }
+        public static void ExecuteAll(string abilityName)
+        {
+            if (!ActiveAbilityInstanceMap.TryGetValue(abilityName, out HashSet<object> activeAbilityInstances))
+                return;
+
+            foreach (object instance in activeAbilityInstances)
+                Execute(instance);
+        }
+        private static Type FindAbilityType(string abilityName)
+        {
+            string expected = abilityName + "Ability";
+
+            return AppDomain.CurrentDomain.GetAssemblies().SelectMany(a =>
+            {
                 try
                 {
-                    object instance = Activator.CreateInstance(type);
-                    
-                    Debug.Log($"[AbilityManager] Created instance → {type.Name}");
-
-                    MethodInfo initMethod = type.GetMethod("Initialize");
-
-                    if (initMethod == null)
-                    {
-                        Debug.LogError($"[AbilityManager] ERROR: Initialize() method not found in {type.Name}");
-                        
-                        continue;
-                    }
-
-                    initMethod.Invoke(instance, new object[] { abilityData });
-
-                    AbilityInstanceMap.Add(abilityName, instance);
-
-                    Debug.Log($"<color=cyan>[AbilityManager] Registered ability instance → {abilityName}</color>");
+                    return a.GetTypes();
                 }
-                catch (Exception ex)
+                catch
                 {
-                    Debug.LogError($"[AbilityManager] ERROR creating instance of {type.Name}: {ex.Message}");
+                    return Array.Empty<Type>();
                 }
-            }
+            }).FirstOrDefault(t => t.Name == expected);
         }
-        public static void Initialize(string abilityName)
-        {
-            Debug.Log($"[AbilityManager] Initialize() requested → {abilityName}");
-
-            if (!TryGetInstance(abilityName, out object instance))
-                return;
-
-            AbilityData data = DataMap[abilityName];
-
-            MethodInfo method = instance.GetType().GetMethod("Initialize");
-            
-            method?.Invoke(instance, new object[] { data });
-
-            Debug.Log($"<color=cyan>[AbilityManager] Initialize() executed → {abilityName}</color>");
-        }
-        public static void Execute(string abilityName)
-        {
-            Debug.Log($"[AbilityManager] Execute() requested → {abilityName}");
-
-            if (!TryGetInstance(abilityName, out object instance))
-                return;
-
-            MethodInfo method = instance.GetType().GetMethod("Execute");
-            
-            method?.Invoke(instance, null);
-
-            Debug.Log($"<color=lime>[AbilityManager] Execute() executed → {abilityName}</color>");
-        }
-        public static void Cancel(string abilityName)
-        {
-            Debug.Log($"[AbilityManager] Cancel() requested → {abilityName}");
-
-            if (!TryGetInstance(abilityName, out object instance))
-                return;
-
-            MethodInfo method = instance.GetType().GetMethod("Cancel");
-            
-            method?.Invoke(instance, null);
-
-            Debug.Log($"<color=orange>[AbilityManager] Cancel() executed → {abilityName}</color>");
-        }
-        private static bool TryGetInstance(string abilityName, out object instance)
-        {
-            if (AbilityInstanceMap.TryGetValue(abilityName, out instance))
-                return true;
-
-            if (!DataMap.ContainsKey(abilityName))
-            {
-                Debug.LogError($"[AbilityManager] ERROR: AbilityData not found → {abilityName}");
-                
-                return false;
-            }
-
-            Debug.LogError($"[AbilityManager] ERROR: Ability instance not registered → {abilityName}");
-            
-            return false;
-        }
+        private static string ExtractAbilityName(string typeName) => typeName.Replace("Ability", "");
         #endregion
     }
 }
