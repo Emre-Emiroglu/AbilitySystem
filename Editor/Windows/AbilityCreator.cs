@@ -50,17 +50,19 @@ namespace AbilitySystem.Editor.Windows
         {
             if (!DrawGenerateAbilityClassesButton())
                 return false;
-            
+
             if (CheckAbilityNameIsEmpty())
                 return true;
-            
-            string sanitizedAbilityName = GetSanitizedAbilityName();
-                
-            AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName);
 
-            AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName);
+            string sanitizedAbilityName = GetSanitizedAbilityName();
+
+            Debug.Log($"[AbilityCreator] Generating classes for → {sanitizedAbilityName}");
+
+            AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName);
             
-            Debug.Log($"{sanitizedAbilityName} ability classes generated.");
+            AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName);
+
+            Debug.Log($"[AbilityCreator] ✔ Generated Ability + Data classes for → {sanitizedAbilityName}");
 
             return false;
         }
@@ -68,15 +70,17 @@ namespace AbilitySystem.Editor.Windows
         {
             if (!DrawCreateScriptableObjectButton())
                 return;
-            
+
             if (CheckAbilityNameIsEmpty())
                 return;
-            
+
             string sanitizedAbilityName = GetSanitizedAbilityName();
+
+            Debug.Log($"[AbilityCreator] Creating SO for → {sanitizedAbilityName}");
 
             AbilityDataGenerator.CreateSo(sanitizedAbilityName);
 
-            Debug.Log($"{sanitizedAbilityName} ScriptableObject created.");
+            Debug.Log($"[AbilityCreator] ✔ SO created for → {sanitizedAbilityName}");
         }
         private static bool DrawGenerateAbilityClassesButton() => GUILayout.Button("Generate Ability Classes");
         private static bool DrawCreateScriptableObjectButton() => GUILayout.Button("Create ScriptableObject");
@@ -85,8 +89,8 @@ namespace AbilitySystem.Editor.Windows
             if (!string.IsNullOrWhiteSpace(_abilityName))
                 return false;
             
-            Debug.LogError("Ability name cannot be empty!");
-
+            Debug.LogError("[AbilityCreator] ERROR: Ability name cannot be empty!");
+                
             return true;
         }
         private string GetSanitizedAbilityName() => _abilityName.Trim().Replace(" ", string.Empty);

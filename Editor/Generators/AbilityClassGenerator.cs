@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using UnityEditor;
+using UnityEngine;
 
 namespace AbilitySystem.Editor.Generators
 {
@@ -13,15 +14,27 @@ namespace AbilitySystem.Editor.Generators
         #region Executes
         public static void CreateAbilityClass(string abilityName)
         {
+            Debug.Log($"[AbilityClassGenerator] Requested ability class generate → {abilityName}");
+
             if (!Directory.Exists(AbilityClassFolder))
+            {
                 Directory.CreateDirectory(AbilityClassFolder);
+                
+                Debug.Log($"[AbilityClassGenerator] Created folder → {AbilityClassFolder}");
+            }
 
             string className = $"{abilityName}Ability";
             string filePath = $"{AbilityClassFolder}/{className}.cs";
             string dataName = $"{abilityName}Data";
 
             if (File.Exists(filePath))
+            {
+                Debug.LogWarning($"[AbilityClassGenerator] SKIPPED. Class already exists → {filePath}");
+                
                 return;
+            }
+
+            Debug.Log($"[AbilityClassGenerator] Creating class file → {filePath}");
 
             string content =
 $@"using AbilitySystem.Runtime.Data;
@@ -56,6 +69,8 @@ namespace AbilitySystem.Runtime.Abilities
             File.WriteAllText(filePath, content);
             
             AssetDatabase.Refresh();
+
+            Debug.Log($"[AbilityClassGenerator] ✔ Created class → {className}");
         }
         #endregion
     }
