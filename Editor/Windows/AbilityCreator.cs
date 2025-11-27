@@ -16,22 +16,15 @@ namespace AbilitySystem.Editor.Windows
         private void OnGUI()
         {
             DrawAbilityNameField();
+            
+            GUILayout.Space(8);
 
-            if (DrawCreateButton())
+            if (GenerateAbilityClasses())
                 return;
             
-            if (CheckAbilityNameIsEmpty())
-                return;
+            GUILayout.Space(4);
 
-            string sanitizedAbilityName = GetSanitizedAbilityName();
-
-            if (!AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName))
-                return;
-            
-            if (!AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName))
-                return;
-
-            Debug.Log($"{sanitizedAbilityName} Ability created successfully!");
+            CreateAbilityScriptableObject();
         }
         #endregion
 
@@ -53,7 +46,40 @@ namespace AbilitySystem.Editor.Windows
 
             _abilityName = EditorGUILayout.TextField("Ability Name", _abilityName);
         }
-        private static bool DrawCreateButton() => !GUILayout.Button("Create Ability");
+        private bool GenerateAbilityClasses()
+        {
+            if (!DrawGenerateAbilityClassesButton())
+                return false;
+            
+            if (CheckAbilityNameIsEmpty())
+                return true;
+            
+            string sanitizedAbilityName = GetSanitizedAbilityName();
+                
+            AbilityDataGenerator.CreateAbilityData(sanitizedAbilityName);
+
+            AbilityClassGenerator.CreateAbilityClass(sanitizedAbilityName);
+            
+            Debug.Log($"{sanitizedAbilityName} ability classes generated.");
+
+            return false;
+        }
+        private void CreateAbilityScriptableObject()
+        {
+            if (!DrawCreateScriptableObjectButton())
+                return;
+            
+            if (CheckAbilityNameIsEmpty())
+                return;
+            
+            string sanitizedAbilityName = GetSanitizedAbilityName();
+
+            AbilityDataGenerator.CreateSoFromMenu(sanitizedAbilityName);
+
+            Debug.Log($"{sanitizedAbilityName} ScriptableObject created.");
+        }
+        private static bool DrawGenerateAbilityClassesButton() => GUILayout.Button("Generate Ability Classes");
+        private static bool DrawCreateScriptableObjectButton() => GUILayout.Button("Create ScriptableObject");
         private bool CheckAbilityNameIsEmpty()
         {
             if (!string.IsNullOrWhiteSpace(_abilityName))

@@ -6,12 +6,12 @@ namespace AbilitySystem.Editor.Generators
     public static class AbilityClassGenerator
     {
         #region Constants
-        private const string AbilityClassFolder = "Assets/AbilitySystem/Scripts/Runtime/Abilities";
+        private const string AbilityClassFolder = "Assets/AbilitySystem/Runtime/Abilities";
         private const string Indent = "    "; 
         #endregion
 
         #region Executes
-        public static bool CreateAbilityClass(string abilityName)
+        public static void CreateAbilityClass(string abilityName)
         {
             if (!Directory.Exists(AbilityClassFolder))
                 Directory.CreateDirectory(AbilityClassFolder);
@@ -21,13 +21,12 @@ namespace AbilitySystem.Editor.Generators
             string dataName = $"{abilityName}Data";
 
             if (File.Exists(filePath))
-                return false;
+                return;
 
             string content =
-$@"using AbilitySystem.Runtime.Abilities;
-using AbilitySystem.Scripts.Runtime.Data;
+$@"using AbilitySystem.Runtime.Data;
 
-namespace AbilitySystem.Scripts.Runtime.Abilities
+namespace AbilitySystem.Runtime.Abilities
 {{
 {Indent}public sealed class {className} : BaseAbility<{dataName}>
 {Indent}{{
@@ -57,8 +56,6 @@ namespace AbilitySystem.Scripts.Runtime.Abilities
             File.WriteAllText(filePath, content);
             
             AssetDatabase.Refresh();
-
-            return true;
         }
         #endregion
     }
