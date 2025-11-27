@@ -5,12 +5,16 @@ namespace AbilitySystem.Runtime.Data
     public abstract class AbilityData : ScriptableObject
     {
         #region Fields
-        [Header("Ability Fields")]
+        [Header("Ability Data Fields")]
         [SerializeField] private string abilityName;
         #endregion
-
-        #region Getters
-        public string AbilityName => abilityName;
+        
+        #region Properities
+        public string AbilityName
+        {
+            get => abilityName;
+            set => abilityName = value;
+        }
         #endregion
     }
 }

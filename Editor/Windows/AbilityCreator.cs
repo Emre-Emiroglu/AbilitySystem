@@ -74,7 +74,7 @@ namespace AbilitySystem.Editor.Windows
             
             string sanitizedAbilityName = GetSanitizedAbilityName();
 
-            AbilityDataGenerator.CreateSoFromMenu(sanitizedAbilityName);
+            AbilityDataGenerator.CreateSo(sanitizedAbilityName);
 
             Debug.Log($"{sanitizedAbilityName} ScriptableObject created.");
         }

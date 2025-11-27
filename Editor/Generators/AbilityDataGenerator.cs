@@ -1,6 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using AbilitySystem.Runtime.Data;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace AbilitySystem.Editor.Generators
 {
@@ -43,46 +46,39 @@ namespace AbilitySystem.Runtime.Data
 
             AssetDatabase.Refresh();
         }
-        public static void CreateSoFromMenu(string abilityName)
+        public static void CreateSo(string abilityName)
         {
             string className = $"{abilityName}Data";
             string targetPath = $"{AbilityDataFolder}/{className}.asset";
-            
-            if (File.Exists(targetPath))
-                return;
-            
-            string menuPath = $"AbilitySystem/AbilityData/{abilityName}Data";
 
-            EditorApplication.ExecuteMenuItem($"Assets/Create/{menuPath}");
+            string[] guids = AssetDatabase.FindAssets($"{className} t:MonoScript");
+
+            string scriptPath = AssetDatabase.GUIDToAssetPath(guids[0]);
             
-            EditorApplication.delayCall += () =>
+            MonoScript mono = AssetDatabase.LoadAssetAtPath<MonoScript>(scriptPath);
+
+            Type type = mono.GetClass();
+
+            ScriptableObject instance = ScriptableObject.CreateInstance(type);
+            
+            AbilityData data = instance as AbilityData;
+
+            if (data)
             {
-                Object[] selectedObjects = Selection.objects;
-
-                if (selectedObjects.Length <= 0)
-                    return;
+                data.AbilityName = abilityName;
                 
-                string sourcePath = AssetDatabase.GetAssetPath(selectedObjects[0]);
+                EditorUtility.SetDirty(data);
+            }
 
-                if (string.IsNullOrEmpty(sourcePath) || !sourcePath.EndsWith($"{className}.asset"))
-                    return;
-                
-                string moveResult = AssetDatabase.MoveAsset(sourcePath, targetPath);
+            AssetDatabase.CreateAsset(instance, targetPath);
 
-                if (!string.IsNullOrEmpty(moveResult))
-                    return;
-                
-                AssetDatabase.SaveAssets();
-                            
-                AssetDatabase.Refresh();
-                            
-                Object movedAsset = AssetDatabase.LoadAssetAtPath<Object>(targetPath);
-                            
-                Selection.activeObject = movedAsset;
-                
-                EditorGUIUtility.PingObject(movedAsset);
-            };
+            AssetDatabase.SaveAssets();
+            
+            AssetDatabase.Refresh();
 
+            Selection.activeObject = instance;
+            
+            EditorGUIUtility.PingObject(instance);
         }
         #endregion        
     }
