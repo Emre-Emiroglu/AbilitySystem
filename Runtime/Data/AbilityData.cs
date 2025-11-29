@@ -2,6 +2,10 @@
 
 namespace AbilitySystem.Runtime.Data
 {
+    /// <summary>
+    /// Base class for all AbilityData ScriptableObjects.
+    /// Stores metadata used by ability logic classes.
+    /// </summary>
     public abstract class AbilityData : ScriptableObject
     {
         #region Fields
@@ -10,6 +14,9 @@ namespace AbilitySystem.Runtime.Data
         #endregion
         
         #region Properities
+        /// <summary>
+        /// The unique name of this ability. Must match the related ability class.
+        /// </summary>
         public string AbilityName
         {
             get => abilityName;

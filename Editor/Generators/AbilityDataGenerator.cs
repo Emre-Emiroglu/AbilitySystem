@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace AbilitySystem.Editor.Generators
 {
+    /// <summary>
+    /// Generates AbilityData classes and ScriptableObject instances.
+    /// Handles file creation and linking ability names.
+    /// </summary>
     public static class AbilityDataGenerator
     {
         #region Constants
@@ -15,6 +19,10 @@ namespace AbilitySystem.Editor.Generators
         #endregion
 
         #region Executes
+        /// <summary>
+        /// Generates the AbilityData C# class file for a given ability.
+        /// </summary>
+        /// <param name="abilityName">The base ability name (e.g. "Fireball").</param>
         public static void CreateAbilityData(string abilityName)
         {
             Debug.Log($"[AbilityDataGenerator] Requested data class generate → {abilityName}");
@@ -67,6 +75,11 @@ namespace AbilitySystem.Runtime.Data
 
             Debug.Log($"[AbilityDataGenerator] ✔ Created data class → {className}");
         }
+        
+        /// <summary>
+        /// Creates a ScriptableObject instance of the generated AbilityData class.
+        /// </summary>
+        /// <param name="abilityName">The ability name corresponding to the AbilityData class.</param>
         public static void CreateSo(string abilityName)
         {
             Debug.Log($"[AbilityDataGenerator] Requested SO create → {abilityName}");

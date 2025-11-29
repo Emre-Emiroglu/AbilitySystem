@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace AbilitySystem.Editor.Generators
 {
+    /// <summary>
+    /// Generates ability logic classes based on a given ability name.
+    /// Creates C# class files under the AbilitySystem runtime folder.
+    /// </summary>
     public static class AbilityClassGenerator
     {
         #region Constants
@@ -12,6 +16,10 @@ namespace AbilitySystem.Editor.Generators
         #endregion
 
         #region Executes
+        /// <summary>
+        /// Generates an ability class file for the specified ability name.
+        /// </summary>
+        /// <param name="abilityName">The base name of the ability (e.g. "Fireball").</param>
         public static void CreateAbilityClass(string abilityName)
         {
             Debug.Log($"[AbilityClassGenerator] Requested ability class generate → {abilityName}");

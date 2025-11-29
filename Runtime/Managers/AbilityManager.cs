@@ -7,6 +7,17 @@ using UnityEngine;
 
 namespace AbilitySystem.Runtime.Managers
 {
+    /// <summary>
+    /// Manages to load, spawning, executing and pooling ability instances at runtime.
+    /// 
+    /// This manager:
+    /// - Loads all AbilityData assets from Resources.
+    /// - Automatically detects all ability classes derived from BaseAbility&lt;&gt;
+    /// - Supports pooling of multiple instances per ability.
+    /// - Allows execution and cancellation of specific or all active instances.
+    /// 
+    /// Designed to be fully dynamic and independent of gameplay code.
+    /// </summary>
     public static class AbilityManager
     {
         #region Constants
@@ -19,7 +30,11 @@ namespace AbilitySystem.Runtime.Managers
         private static readonly Dictionary<string, HashSet<object>> ActiveAbilityInstanceMap = new();
         #endregion
         
-        #region Initialization
+        #region Executes
+        /// <summary>
+        /// Initializes the AbilityManager by loading AbilityData assets and preparing instance containers.
+        /// Call this once at game startup before using any ability logic.
+        /// </summary>
         public static void InitializeManager()
         {
             Debug.Log("<color=yellow>[AbilityManager] Initializing...</color>");
@@ -55,9 +70,14 @@ namespace AbilitySystem.Runtime.Managers
                 ActiveAbilityInstanceMap[ability] = new HashSet<object>();
             }
         }
-        #endregion
 
-        #region Executes
+        /// <summary>
+        /// Spawns a new ability instance.  
+        /// If a pooled instance exists, it is reused.  
+        /// Otherwise, a new instance is created via reflection.
+        /// </summary>
+        /// <param name="abilityName">The name of the ability to spawn.</param>
+        /// <returns>The spawned ability instance, or null if spawning fails.</returns>
         public static object Spawn(string abilityName)
         {
             if (!DataMap.TryGetValue(abilityName, out AbilityData data))
@@ -93,6 +113,12 @@ namespace AbilitySystem.Runtime.Managers
 
             return instance;
         }
+        
+        /// <summary>
+        /// Releases an ability instance back into the pool.
+        /// Cancels it if necessary and marks it as inactive.
+        /// </summary>
+        /// <param name="instance">The ability instance to release.</param>
         public static void Release(object instance)
         {
             if (instance == null)
@@ -100,7 +126,7 @@ namespace AbilitySystem.Runtime.Managers
 
             string abilityName = ExtractAbilityName(instance.GetType().Name);
 
-            if (!ActiveAbilityInstanceMap.ContainsKey(abilityName))
+            if (!ActiveAbilityInstanceMap.TryGetValue(abilityName, out HashSet<object> activeAbilityInstances))
             {
                 Debug.LogWarning($"[AbilityManager] Tried to release unknown ability → {abilityName}");
                 
@@ -111,18 +137,30 @@ namespace AbilitySystem.Runtime.Managers
             
             cancel?.Invoke(instance, null);
 
-            ActiveAbilityInstanceMap[abilityName].Remove(instance);
+            activeAbilityInstances.Remove(instance);
             
             DeActiveAbilityInstanceMap[abilityName].Push(instance);
         }
+        
+        /// <summary>
+        /// Cancels and releases all active instances of the specified ability.
+        /// </summary>
+        /// <param name="abilityName">The ability to cancel all instances for.</param>
         public static void CancelAll(string abilityName)
         {
             if (!ActiveAbilityInstanceMap.TryGetValue(abilityName, out HashSet<object> activeAbilityInstances))
                 return;
 
-            foreach (object instance in activeAbilityInstances)
+            List<object> snapshot = activeAbilityInstances.ToList();
+
+            foreach (object instance in snapshot)
                 Release(instance);
         }
+        
+        /// <summary>
+        /// Executes a single ability instance.
+        /// </summary>
+        /// <param name="instance">The ability of instance to execute.</param>
         public static void Execute(object instance)
         {
             if (instance == null)
@@ -132,6 +170,11 @@ namespace AbilitySystem.Runtime.Managers
             
             execute?.Invoke(instance, null);
         }
+        
+        /// <summary>
+        /// Executes all active instances of the specified ability.
+        /// </summary>
+        /// <param name="abilityName">The ability to execute all active instances for.</param>
         public static void ExecuteAll(string abilityName)
         {
             if (!ActiveAbilityInstanceMap.TryGetValue(abilityName, out HashSet<object> activeAbilityInstances))
@@ -156,7 +199,12 @@ namespace AbilitySystem.Runtime.Managers
                 }
             }).FirstOrDefault(t => t.Name == expected);
         }
-        private static string ExtractAbilityName(string typeName) => typeName.Replace("Ability", "");
+        private static string ExtractAbilityName(string typeName)
+        {
+            const string suffix = "Ability";
+    
+            return typeName.EndsWith(suffix) ? typeName[..^suffix.Length] : typeName;
+        }
         #endregion
     }
 }

@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace AbilitySystem.Editor.Windows
 {
+    /// <summary>
+    /// Editor window for generating new ability classes and ScriptableObjects.
+    /// Provides UI tools for workflow automation.
+    /// </summary>
     public sealed class AbilityCreator : EditorWindow
     {
         #region Fields
